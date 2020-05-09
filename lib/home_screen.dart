@@ -11,9 +11,7 @@ import 'package:http/http.dart' as http;
 const API_URL = "https://eventomatic-api.herokuapp.com";
 
 class HomeScreen extends StatefulWidget {
-  final String util;
 
-  const HomeScreen({Key key, @required this.util}) : super(key: key);
   @override
   _HomeScreenState createState() => _HomeScreenState();
 }
