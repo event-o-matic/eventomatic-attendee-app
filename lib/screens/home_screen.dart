@@ -2,8 +2,9 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:barcode_scan/barcode_scan.dart';
-import 'package:eventomaticattendeeapp/models/attendee.dart';
-import 'package:eventomaticattendeeapp/profile_screen.dart';
+import 'package:eventomaticattendeeapp/data/demo_data.dart';
+import 'package:eventomaticattendeeapp/models/user.dart';
+import 'package:eventomaticattendeeapp/screens/profile_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
@@ -19,7 +20,6 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   String error;
   String text;
-  User user;
   Color textColor = Colors.black;
 
   Future _scanQR() async {
@@ -30,22 +30,28 @@ class _HomeScreenState extends State<HomeScreen> {
     });
     try {
       String qrResult = (await BarcodeScanner.scan()).rawContent;
-      print(qrResult);
+      if(qrResult.isEmpty)
+        throw FormatException("Invalid Inputs!");
+
       final result = await http.get(
         "$API_URL/attendees/$qrResult",
         headers: {"Content-type": "Application/json"},
       );
-      if (result.statusCode != 200) {
-        throw HttpException("ERROR FROM BACKEND");
-      }
+      if (result.statusCode != 200)
+        throw FormatException("Invalid Inputs!");
 
+      final decodedResult = jsonDecode(result.body);
+      print(decodedResult);
+      if(!(decodedResult is Map) || decodedResult["data"] == null || !(decodedResult["data"] is Map)){
+        throw FormatException("Invalid Inputs!");
+      }
       setState(() {
-        user = User.fromJson(jsonDecode(result.body)["data"]);
-        text = "Success: ${user.fullname}";
+        demoData.loggedInUser = User.fromJson(decodedResult["data"]);
+        text = "Success: ${demoData.loggedInUser.fullName}";
         textColor = Colors.green;
       });
 
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => ProfileScreen(user: user,)));
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => ProfileScreen(user: demoData.loggedInUser,)));
     } on PlatformException catch (ex) {
       error = ex.code == BarcodeScanner.cameraAccessDenied
           ? "Camera permission was denied"
