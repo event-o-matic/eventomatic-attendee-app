@@ -1,8 +1,12 @@
+import 'package:eventomaticattendeeapp/screens/scanning_screen.dart';
 import 'package:eventomaticattendeeapp/screens/startup_screen.dart';
 import 'package:eventomaticattendeeapp/utils/theme_colors.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitDown,DeviceOrientation.portraitUp]);
   runApp(MyApp());
 }
 
@@ -18,7 +22,7 @@ class MyApp extends StatelessWidget {
         fontFamily: "Gilroy",
       ),
       title: 'Eventomatic Attendee Application',
-      home: StartupScreen(),
+      home: ScanningScreen(),
     );
   }
 }
